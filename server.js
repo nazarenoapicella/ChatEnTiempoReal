@@ -1,68 +1,54 @@
 const express = require('express');
-const socketIo = require('socket.io');
 const fs = require('fs');
-const path = require('path');
-
+const cors = require('cors');
+const bodyParser = require('body-parser');
 const app = express();
-const server = app.listen(3000, () => {
-  console.log('Servidor corriendo en http://localhost:3000');
-});
 
-const io = socketIo(server);
-
-// Leer los mensajes desde el archivo JSON
-function readMessages() {
-  const messagesPath = path.join(__dirname, 'messages.json');
-  if (fs.existsSync(messagesPath)) {
-    const data = fs.readFileSync(messagesPath, 'utf8');
-    return JSON.parse(data);
-  }
-  return [];
-}
-
-// Guardar los mensajes en el archivo JSON
-function saveMessages(messages) {
-  const messagesPath = path.join(__dirname, 'messages.json');
-  fs.writeFileSync(messagesPath, JSON.stringify(messages, null, 2), 'utf8');
-}
-
-// Servir los archivos estáticos
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
 app.use(express.static('public'));
 
-// Conexión de clientes con socket.io
-io.on('connection', (socket) => {
-  console.log('Un usuario se conectó');
+// Ruta para la página principal
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
 
-  // Enviar los mensajes guardados al nuevo cliente
-  socket.emit('loadMessages', readMessages());
+// Archivo donde se guardan los mensajes
+const MESSAGE_FILE = './messages.json';
 
-  // Escuchar el nombre de usuario del cliente
-  socket.on('setUsername', (username) => {
-    socket.username = username;
-    console.log(`${username} se ha unido al chat`);
-  });
+// Ruta para obtener mensajes
+app.get('/api/messages', (req, res) => {
+  if (fs.existsSync(MESSAGE_FILE)) {
+    const messages = JSON.parse(fs.readFileSync(MESSAGE_FILE, 'utf8'));
+    res.json(messages);
+  } else {
+    res.json([]); // Si no existe el archivo, se devuelve un array vacío
+  }
+});
 
-  // Escuchar los mensajes que el cliente envía
-  socket.on('sendMessage', (message) => {
-    if (!socket.username) {
-      // Si el usuario no tiene nombre, no procesamos el mensaje
-      return;
-    }
-    const formattedMessage = {
-      user: socket.username,
-      text: message
-    };
-    
-    const messages = readMessages();
-    messages.push(formattedMessage);
-    saveMessages(messages);
+// Ruta para enviar un mensaje
+app.post('/api/messages', (req, res) => {
+  const { username, message } = req.body;
+  if (!username || !message) {
+    return res.status(400).json({ error: 'Faltan datos: username o message' });
+  }
 
-    // Enviar el mensaje a todos los clientes
-    io.emit('receiveMessage', formattedMessage);
-  });
+  const newMessage = { username, message, timestamp: new Date().toISOString() };
 
-  // Cuando un usuario se desconecta
-  socket.on('disconnect', () => {
-    console.log('Un usuario se desconectó');
-  });
+  let messages = [];
+  if (fs.existsSync(MESSAGE_FILE)) {
+    messages = JSON.parse(fs.readFileSync(MESSAGE_FILE, 'utf8'));
+  }
+
+  messages.push(newMessage);
+
+  fs.writeFileSync(MESSAGE_FILE, JSON.stringify(messages, null, 2));
+  res.status(201).json({ success: true });
+});
+
+// Servidor
+const PORT = process.env.PORT || 3000;
+const server = app.listen(PORT, () => {
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
