@@ -1,67 +1,50 @@
-const socket = io();
-const authContainer = document.getElementById('auth-container');
-const chatContainer = document.getElementById('chat-container');
+const socket = io(); // Conexión con el servidor
+
+const joinForm = document.getElementById('join-form');
 const chatBox = document.getElementById('chat-box');
-const messageInput = document.getElementById('message-input');
-const sendBtn = document.getElementById('send-btn');
-const usernameInput = document.getElementById('username-input');
-const joinBtn = document.getElementById('join-btn');
+const messagesList = document.getElementById('messages');
+const messageForm = document.getElementById('message-form');
+const messageInput = document.getElementById('message');
 
-// Verificar si el nombre de usuario ya está almacenado
-const savedUsername = localStorage.getItem('username');
-if (savedUsername) {
-  // Si ya está guardado, unirse al chat automáticamente
-  socket.emit('setUsername', savedUsername);
-  authContainer.style.display = 'none';
-  chatContainer.style.display = 'block';
-}
+let username;
 
-// Recibir mensajes del servidor
-socket.on('loadMessages', (messages) => {
-  messages.forEach(msg => {
-    displayMessage(msg);
+// Unirse al chat
+joinForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  username = document.getElementById('username').value.trim();
+  if (username) {
+    localStorage.setItem('username', username);
+    joinForm.style.display = 'none';
+    chatBox.style.display = 'block';
+  }
+});
+
+// Cargar mensajes anteriores
+socket.on('chat history', (messages) => {
+  messages.forEach(({ username, message, timestamp }) => {
+    addMessage(username, message, timestamp);
   });
 });
 
-socket.on('receiveMessage', (message) => {
-  displayMessage(message);
+// Recibir nuevos mensajes
+socket.on('new message', ({ username, message, timestamp }) => {
+  addMessage(username, message, timestamp);
 });
 
-// Mostrar un mensaje en la interfaz
-function displayMessage(message) {
-  const messageElement = document.createElement('div');
-  messageElement.textContent = `${message.user}: ${message.text}`;
-  chatBox.appendChild(messageElement);
-  chatBox.scrollTop = chatBox.scrollHeight; // Para mantener la vista en el último mensaje
-}
-
-// Unirse al chat
-joinBtn.addEventListener('click', () => {
-  const username = usernameInput.value.trim();
-  if (username) {
-    // Guardar el nombre de usuario en localStorage
-    localStorage.setItem('username', username);
-
-    socket.emit('setUsername', username);
-    authContainer.style.display = 'none';
-    chatContainer.style.display = 'block';
-  } else {
-    alert('Por favor, ingresa un nombre de usuario');
-  }
-});
-
-// Enviar mensaje al servidor
-sendBtn.addEventListener('click', () => {
+// Enviar mensajes
+messageForm.addEventListener('submit', (e) => {
+  e.preventDefault();
   const message = messageInput.value.trim();
   if (message) {
-    socket.emit('sendMessage', message);
-    messageInput.value = ''; // Limpiar el input
+    socket.emit('new message', { username, message });
+    messageInput.value = '';
   }
 });
 
-// Asegurarse de que el mensaje se envíe cuando el usuario presiona Enter
-messageInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    sendBtn.click();
-  }
-});
+// Agregar un mensaje al DOM
+function addMessage(username, message, timestamp) {
+  const li = document.createElement('li');
+  li.textContent = `[${new Date(timestamp).toLocaleTimeString()}] ${username}: ${message}`;
+  messagesList.appendChild(li);
+  messagesList.scrollTop = messagesList.scrollHeight;
+}
