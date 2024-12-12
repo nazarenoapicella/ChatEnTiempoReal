@@ -1,50 +1,64 @@
-const socket = io(); // Conexión con el servidor
+document.addEventListener('DOMContentLoaded', () => {
+  const socket = io();
 
-const joinForm = document.getElementById('join-form');
-const chatBox = document.getElementById('chat-box');
-const messagesList = document.getElementById('messages');
-const messageForm = document.getElementById('message-form');
-const messageInput = document.getElementById('message');
-
-let username;
-
-// Unirse al chat
-joinForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  username = document.getElementById('username').value.trim();
+  const joinForm = document.querySelector("#join-form");
+  const chatBox = document.querySelector("#chat-box");
+  const messagesList = document.querySelector("#messages");
+  const messageForm = document.querySelector("#message-form");
+  const messageInput = document.querySelector("#message");
+  
+  let username = localStorage.getItem("username");
+  
+  // Función para mostrar el chat
+  const showChat = () => {
+    joinForm.style.display = "none";
+    chatBox.style.display = "flex";
+  };
+  
+  // Si hay un usuario guardado, mostrar el chat directamente
   if (username) {
-    localStorage.setItem('username', username);
-    joinForm.style.display = 'none';
-    chatBox.style.display = 'block';
+    showChat();
   }
-});
-
-// Cargar mensajes anteriores
-socket.on('chat history', (messages) => {
-  messages.forEach(({ username, message, timestamp }) => {
-    addMessage(username, message, timestamp);
+  
+  // Manejar el formulario de unión
+  joinForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const usernameInput = document.querySelector("#username");
+    username = usernameInput.value.trim();
+  
+    if (username) {
+      localStorage.setItem("username", username); // Guardar el nombre en localStorage
+      showChat();
+    }
   });
-});
-
-// Recibir nuevos mensajes
-socket.on('new message', ({ username, message, timestamp }) => {
-  addMessage(username, message, timestamp);
-});
-
-// Enviar mensajes
-messageForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const message = messageInput.value.trim();
-  if (message) {
-    socket.emit('new message', { username, message });
-    messageInput.value = '';
-  }
-});
-
-// Agregar un mensaje al DOM
-function addMessage(username, message, timestamp) {
-  const li = document.createElement('li');
-  li.textContent = `[${new Date(timestamp).toLocaleTimeString()}] ${username}: ${message}`;
-  messagesList.appendChild(li);
-  messagesList.scrollTop = messagesList.scrollHeight;
-}
+  
+  // Manejar el envío de mensajes
+  messageForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = messageInput.value.trim();
+  
+    if (text) {
+      socket.emit("message", { username, text });
+      messageInput.value = "";
+    }
+  });
+  
+  // Mostrar mensajes previos
+  socket.on("previousMessages", (messages) => {
+    messages.forEach((msg) => {
+      const li = document.createElement("li");
+      li.textContent = `[${msg.timestamp}] ${msg.username}: ${msg.text}`;
+      messagesList.appendChild(li);
+    });
+    messagesList.scrollTop = messagesList.scrollHeight;
+  });
+  
+  // Mostrar mensajes nuevos
+  socket.on("message", (msg) => {
+    const li = document.createElement("li");
+    li.textContent = `[${msg.timestamp}] ${msg.username}: ${msg.text}`;
+    messagesList.appendChild(li);
+    messagesList.scrollTop = messagesList.scrollHeight;
+  });
+  
+})

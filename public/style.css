@@ -1,117 +1,112 @@
-
-.chat-container {
-  width: 400px;
-  max-width: 100%;
-  background-color: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  border-radius: 10px;
-}
-
-.chat-box {
-  height: 300px;
-  overflow-y: scroll;
-  border: 1px solid #ddd;
-  margin-bottom: 10px;
-  padding: 10px;
-  background-color: #fafafa;
-}
-
-.message-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-}
-
-.send-btn {
-  width: 100%;
-  padding: 10px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.send-btn:hover {
-  background-color: #45a049;
-}
-
+/* Estilo general */
 body {
   font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f9;
+  color: #333;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  margin: 0;
-  background-color: #f1f1f1;
+  overflow: hidden;
 }
 
-.auth-container {
+/* Formulario de unirse */
+#join-form {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+#join-form input {
+  width: calc(100% - 24px);
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+#join-form button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#join-form button:hover {
+  background-color: #0056b3;
+}
+
+/* Chatbox */
+#chat-box {
+  background-color: #fff;
+  width: 400px;
+  height: 500px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+/* Contenedor de mensajes */
+#messages {
+  list-style-type: none;
+  padding: 10px;
+  margin: 0;
+  flex-grow: 1;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  background-color: #fafafa;
+  height: 400px; /* Altura fija para el cuadro de mensajes */
+}
+
+/* Mensajes individuales */
+#messages li {
+  margin-bottom: 10px;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+#messages li:nth-child(odd) {
+  background-color: #eef;
+}
+
+/* Formulario de entrada fijo al final */
+#message-form {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+  background-color: #fff;
   align-items: center;
 }
 
-.username-input {
-  width: 300px;
+#message-form input {
+  flex-grow: 1;
   padding: 10px;
-  margin-bottom: 10px;
   border: 1px solid #ddd;
-  border-radius: 5px;
+  border-radius: 4px;
+  font-size: 16px;
 }
 
-.join-btn {
-  padding: 10px;
-  background-color: #4CAF50;
+#message-form button {
+  background-color: #28a745;
   color: white;
   border: none;
-  border-radius: 5px;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 16px;
   cursor: pointer;
+  margin-left: 10px;
 }
 
-.join-btn:hover {
-  background-color: #45a049;
-}
-
-.chat-container {
-  width: 400px;
-  max-width: 100%;
-  background-color: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  border-radius: 10px;
-}
-
-.chat-box {
-  height: 300px;
-  overflow-y: scroll;
-  border: 1px solid #ddd;
-  margin-bottom: 10px;
-  padding: 10px;
-  background-color: #fafafa;
-}
-
-.message-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-}
-
-.send-btn {
-  width: 100%;
-  padding: 10px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.send-btn:hover {
-  background-color: #45a049;
+#message-form button:hover {
+  background-color: #1e7e34;
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,18 +7,25 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="auth-container" class="auth-container">
-    <input type="text" id="username-input" class="username-input" placeholder="Ingresa tu nombre de usuario">
-    <button id="join-btn" class="join-btn">Unirse al chat</button>
+  <div id="join-form">
+    <h2>Unirse al chat</h2>
+    <form>
+      <input type="text" id="username" placeholder="Tu nombre" required>
+      <button type="submit">Unirme al chat</button>
+    </form>
   </div>
 
-  <div id="chat-container" class="chat-container" style="display: none;">
-    <div id="chat-box" class="chat-box"></div>
-    <input type="text" id="message-input" class="message-input" placeholder="Escribe tu mensaje...">
-    <button id="send-btn" class="send-btn">Enviar</button>
+  <div id="chat-box" style="display: none;">
+    <ul id="messages"></ul>
+    <form id="message-form">
+      <input type="text" id="message" placeholder="Escribe tu mensaje..." required>
+      <button type="submit">Enviar</button>
+    </form>
   </div>
 
+  <!-- Cargar el cliente de Socket.IO -->
   <script src="/socket.io/socket.io.js"></script>
+  <!-- Cargar tu script -->
   <script src="script.js"></script>
 </body>
 </html>
